@@ -32,7 +32,6 @@ public class ClassRelativeResourceLoader extends DefaultResourceLoader {
 
 	private final Class<?> clazz;
 
-
 	/**
 	 * Create a new ClassRelativeResourceLoader for the given class.
 	 * @param clazz the class to load resources through

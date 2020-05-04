@@ -30,11 +30,15 @@ import org.springframework.beans.BeansException;
  * {@link BeanFactory}, while implementations of this class are normally meant
  * to be fed as an API to other beans (through injection). As such, the
  * {@code getObject()} method has different exception handling behavior.
+ * <p>
+ * 这个接口类似于{@link FactoryBean}，但是后者的实现类通常被定义为{@link BeanFactory}中
+ * 的SPI实例，而这个类的实现通常是作为API提供给其他bean(通过注入)。因此,
+ * {@code getObject()}方法具有不同的异常处理行为。
  *
- * @author Colin Sampaleanu
- * @since 1.0.2
  * @param <T> the object type
+ * @author Colin Sampaleanu
  * @see FactoryBean
+ * @since 1.0.2
  */
 @FunctionalInterface
 public interface ObjectFactory<T> {
@@ -42,6 +46,7 @@ public interface ObjectFactory<T> {
 	/**
 	 * Return an instance (possibly shared or independent)
 	 * of the object managed by this factory.
+	 *
 	 * @return the resulting instance
 	 * @throws BeansException in case of creation errors
 	 */

@@ -51,6 +51,9 @@ import org.springframework.util.Assert;
  */
 public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContext {
 
+	/**
+	 * 配置文件资源对象数组
+	 */
 	@Nullable
 	private Resource[] configResources;
 
@@ -137,10 +140,12 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 	public ClassPathXmlApplicationContext(
 			String[] configLocations, boolean refresh, @Nullable ApplicationContext parent)
 			throws BeansException {
-
+		// 设置父级的ApplicationContext，这里是null没什么用
 		super(parent);
+		// 存储Spring配置文件的路径到本地
 		setConfigLocations(configLocations);
 		if (refresh) {
+			// Spring加载Bean的核心方法，用于刷新整个Spring上下文信息，定义了上下文加载流程
 			refresh();
 		}
 	}

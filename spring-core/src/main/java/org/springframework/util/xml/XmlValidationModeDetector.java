@@ -95,6 +95,7 @@ public class XmlValidationModeDetector {
 			String content;
 			while ((content = reader.readLine()) != null) {
 				content = consumeCommentTokens(content);
+				// 注释或者为空行
 				if (this.inComment || !StringUtils.hasText(content)) {
 					continue;
 				}
