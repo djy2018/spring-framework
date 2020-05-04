@@ -866,6 +866,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 					if (bean instanceof FactoryBean) {
 						final FactoryBean<?> factory = (FactoryBean<?>) bean;
 						boolean isEagerInit;
+						// 判断一个Bean是否是SmartFactoryBean的实现，
+						// 如果是并且EagerInit(这个意思是需要立即加载)的话，会立即实例化这个Bean(SmartFactoryBean是一个FactoryBean的扩展接口，基本不太会用到可以不用关注)
 						if (System.getSecurityManager() != null && factory instanceof SmartFactoryBean) {
 							isEagerInit = AccessController.doPrivileged((PrivilegedAction<Boolean>)
 											((SmartFactoryBean<?>) factory)::isEagerInit,

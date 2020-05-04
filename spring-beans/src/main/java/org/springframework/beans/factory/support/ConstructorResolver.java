@@ -107,6 +107,11 @@ class ConstructorResolver {
 	 * <p>This corresponds to constructor injection: In this mode, a Spring
 	 * bean factory is able to host components that expect constructor-based
 	 * dependency resolution.
+	 *
+	 * “自动装配构造函数”(按类型提供构造函数参数)行为。如果指定了显式构造函数参数值，
+	 * 将所有剩余参数与bean工厂中的bean匹配，也可以应用。
+	 * <p>这对应于构造函数注入:在这种模式下，Spring bean工厂能够托管期望基于构造函数的依赖项解析的组件。
+	 *
 	 * @param beanName the name of the bean
 	 * @param mbd the merged bean definition for the bean
 	 * @param chosenCtors chosen candidate constructors (or {@code null} if none)
@@ -117,6 +122,7 @@ class ConstructorResolver {
 	public BeanWrapper autowireConstructor(String beanName, RootBeanDefinition mbd,
 			@Nullable Constructor<?>[] chosenCtors, @Nullable Object[] explicitArgs) {
 
+		// 实例化BeanWrapper，是包装bean的容器
 		BeanWrapperImpl bw = new BeanWrapperImpl();
 		this.beanFactory.initBeanWrapper(bw);
 
@@ -124,26 +130,34 @@ class ConstructorResolver {
 		ArgumentsHolder argsHolderToUse = null;
 		Object[] argsToUse = null;
 
+		// 如果getBean中传入的参数不为空，那么就使用传入的参数
 		if (explicitArgs != null) {
 			argsToUse = explicitArgs;
 		}
+		// 否则就需要解析配置文件中的参数
 		else {
 			Object[] argsToResolve = null;
 			synchronized (mbd.constructorArgumentLock) {
+				// 缓存中的构造器
 				constructorToUse = (Constructor<?>) mbd.resolvedConstructorOrFactoryMethod;
 				if (constructorToUse != null && mbd.constructorArgumentsResolved) {
 					// Found a cached constructor...
+					// 在缓存中找到了构造器，就继续从缓存中寻找缓存的构造器参数
 					argsToUse = mbd.resolvedConstructorArguments;
 					if (argsToUse == null) {
+						// 没有缓存的参数，就需要获取配置文件中配置的参数
 						argsToResolve = mbd.preparedConstructorArguments;
 					}
 				}
 			}
+			// 如果缓存中没有缓存的参数的话，即argsToResolve不为空，就需要解析配置的参数
 			if (argsToResolve != null) {
+				// 解析参数类型，比如将配置的String类型转换成int、boolean等类型
 				argsToUse = resolvePreparedArguments(beanName, mbd, bw, constructorToUse, argsToResolve, true);
 			}
 		}
 
+		// 如果没有缓存，就需要从构造函数开始解析
 		if (constructorToUse == null || argsToUse == null) {
 			// Take specified constructors, if any.
 			Constructor<?>[] candidates = chosenCtors;
@@ -174,17 +188,22 @@ class ConstructorResolver {
 			}
 
 			// Need to resolve the constructor.
+			// 是否需要解析构造器
 			boolean autowiring = (chosenCtors != null ||
 					mbd.getResolvedAutowireMode() == AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR);
 			ConstructorArgumentValues resolvedValues = null;
 
 			int minNrOfArgs;
 			if (explicitArgs != null) {
+				// getBean方法传入的参数
 				minNrOfArgs = explicitArgs.length;
 			}
 			else {
+				// 配置文件中的配置的参数
 				ConstructorArgumentValues cargs = mbd.getConstructorArgumentValues();
+				// 用于承载解析后的构造函数参数的值
 				resolvedValues = new ConstructorArgumentValues();
+				// 解析配置文件中的参数，并且返回参数个数
 				minNrOfArgs = resolveConstructorArguments(beanName, mbd, bw, cargs, resolvedValues);
 			}
 

@@ -69,6 +69,9 @@ public interface SmartInstantiationAwareBeanPostProcessor extends InstantiationA
 	/**
 	 * Obtain a reference for early access to the specified bean,
 	 * typically for the purpose of resolving a circular reference.
+	 *
+	 * 获取指定bean的早期访问引用，通常用于解析循环引用
+	 *
 	 * <p>This callback gives post-processors a chance to expose a wrapper
 	 * early - that is, before the target bean instance is fully initialized.
 	 * The exposed object should be equivalent to the what
@@ -83,7 +86,7 @@ public interface SmartInstantiationAwareBeanPostProcessor extends InstantiationA
 	 * <p>The default implementation returns the given {@code bean} as-is.
 	 * @param bean the raw bean instance
 	 * @param beanName the name of the bean
-	 * @return the object to expose as bean reference
+	 * @return the object to expose as bean reference 暴露bean引用的对象
 	 * (typically with the passed-in bean instance as default)
 	 * @throws org.springframework.beans.BeansException in case of errors
 	 */
