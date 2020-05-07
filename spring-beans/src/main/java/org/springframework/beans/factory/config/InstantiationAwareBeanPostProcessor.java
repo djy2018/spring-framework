@@ -64,6 +64,15 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	 * {@link SmartInstantiationAwareBeanPostProcessor} interface in order
 	 * to predict the type of the bean object that they are going to return here.
 	 * <p>The default implementation returns {@code null}.
+	 *
+	 * 在实例化目标bean之前应用这个BeanPostProcessor。返回的bean对象可以是一个代替目标bean使用的代理，
+	 * 从而有效地抑制了目标bean的默认实例化。如果此方法返回一个非空对象，则bean创建过程将短路。
+	 * 所应用的惟一进一步处理是配置的{@link BeanPostProcessor BeanPostProcessors}中的
+	 * {@link # postProcessAfterInitialization}回调。此回调将仅应用于具有bean类的bean定义。
+	 * 特别是，它不会应用于工厂方法的bean。后处理程序可以实现扩展的
+	 * {@link SmartInstantiationAwareBeanPostProcessor}接口，以预测它们将在这里返回的bean对象的类型。
+	 * 默认实现返回{@code null}。
+	 *
 	 * @param beanClass the class of the bean to be instantiated
 	 * @param beanName the name of the bean
 	 * @return the bean object to expose instead of a default instance of the target bean,
@@ -83,6 +92,10 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	 * <p>This is the ideal callback for performing custom field injection on the given bean
 	 * instance, right before Spring's autowiring kicks in.
 	 * <p>The default implementation returns {@code true}.
+	 *
+	 * 通过构造函数或工厂方法实例化bean之后，但在Spring属性填充(来自显式属性或自动装配)发生之前执行操作。
+	 * <p>这是对给定bean实例执行自定义字段注入的理想回调，就在Spring的自动装配开始之前。
+	 *
 	 * @param bean the bean instance created, with properties not having been set yet
 	 * @param beanName the name of the bean
 	 * @return {@code true} if properties should be set on the bean; {@code false}

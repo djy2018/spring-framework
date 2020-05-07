@@ -36,6 +36,11 @@ public abstract class AspectJProxyUtils {
 	 * This will expose the current Spring AOP invocation (necessary for some AspectJ pointcut matching)
 	 * and make available the current AspectJ JoinPoint. The call will have no effect if there are no
 	 * AspectJ advisors in the advisor chain.
+	 *
+	 * 如果需要使用包含AspectJ通知的代理链，可以添加特殊的通知。
+	 * 这将公开当前的Spring AOP调用(对于某些AspectJ切入点匹配是必要的)，并使当前的AspectJ连接点可用。
+	 * 如果通知链中没有AspectJ通知，则调用将不起作用。
+	 *
 	 * @param advisors the advisors available
 	 * @return {@code true} if any special {@link Advisor Advisors} were added, otherwise {@code false}
 	 */

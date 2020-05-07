@@ -30,18 +30,49 @@ import org.springframework.util.Assert;
  */
 public class ProxyConfig implements Serializable {
 
-	/** use serialVersionUID from Spring 1.2 for interoperability. */
+	/**
+	 * use serialVersionUID from Spring 1.2 for interoperability.
+	 */
 	private static final long serialVersionUID = -8409359707199703185L;
 
-
+	/**
+	 * 这个属性用来标志是否直接对目标类进行代理，而不是代理特定的接口，默认值为false。
+	 * 如果该值为true，则proxyFactory将会使用CGLIB对目标对象进行代理
+	 */
 	private boolean proxyTargetClass = false;
 
+	/**
+	 * optimize用来标记是否需要对代理对象采取性能优化措施，默认值为false。
+	 * 如果将optimize设置为true，那么在生成代理对象之后，如果对代理配置进行了修改，已经创建的代理对象也不会获取修改之后的代理配置。
+	 * (optimize:标记是否对代理进行优化。启动优化通常意味着在代理对象被创建后，增强的修改将不会生效，因此默认值为false)
+	 * <p>
+	 * 另外需要注意的一点是，optimize属性与exposeProxy属性是不能兼容的，如果exposeProxy为true，
+	 * 那么即使optimize被设置为true，该配置也不会生效。
+	 */
 	private boolean optimize = false;
 
+	/**
+	 * 这个属性用来标记是否阻止将被创建的代理对象转换为Advised类型，以便去查询代理的状态或是对代理对象的部分属性进行修改，
+	 * 默认值为false，即允许将代理对象转换为Advised类型。Advised接口其实就代表了被代理的对象，它持有了代理对象的一些属性，
+	 * 通过它可以对生成的代理对象的一些属性进行人为干预。
+	 */
 	boolean opaque = false;
 
+	/**
+	 * 标记代理对象是否应该被aop框架通过AopContext以ThreadLocal的形式暴露出去。
+	 * 当一个代理对象需要调用它自己的另外一个代理方法时，这个属性将非常有用。默认是是false，以避免不必要的拦截。
+	 */
 	boolean exposeProxy = false;
 
+	/**
+	 * 前面说到，当opaque属性设置为false时，我们可以将代理对象转换为Advised类型，进而可以对代理对象的一些属性进行查询和修改。
+	 * 而frozen则用来标记是否需要冻结代理对象，即在代理对象生成之后，是否允许对其进行修改，默认为false.
+	 * <p>
+	 * 作者：shysheng
+	 * 链接：https://www.jianshu.com/p/b38b1a8cb0a4
+	 * 来源：简书
+	 * 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+	 */
 	private boolean frozen = false;
 
 
@@ -55,6 +86,7 @@ public class ProxyConfig implements Serializable {
 	 * <p>Note: Depending on the configuration of the concrete proxy factory,
 	 * the proxy-target-class behavior will also be applied if no interfaces
 	 * have been specified (and no interface autodetection is activated).
+	 *
 	 * @see org.springframework.aop.TargetSource#getTargetClass()
 	 */
 	public void setProxyTargetClass(boolean proxyTargetClass) {
@@ -149,6 +181,7 @@ public class ProxyConfig implements Serializable {
 
 	/**
 	 * Copy configuration from the other config object.
+	 *
 	 * @param other object to copy configuration from
 	 */
 	public void copyFrom(ProxyConfig other) {
