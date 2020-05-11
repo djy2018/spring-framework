@@ -132,6 +132,7 @@ public final class BeanDefinitionBuilder {
 
 	/**
 	 * Our current position with respect to constructor args.
+	 * 关于构造函数参数的当前位置
 	 */
 	private int constructorArgIndex;
 

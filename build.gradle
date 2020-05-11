@@ -271,6 +271,7 @@ configure(rootProject) {
 		testCompile(project(":spring-test"))
 		testCompile(project(":spring-tx"))
 		testCompile(project(":spring-web"))
+		testCompile(project(":spring-custom"))
 		testCompile("javax.inject:javax.inject:1")
 		testCompile("javax.resource:javax.resource-api:1.7.1")
 		testCompile("javax.servlet:javax.servlet-api:3.1.0")
