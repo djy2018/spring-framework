@@ -30,6 +30,8 @@ import org.springframework.lang.Nullable;
 /**
  * EntityResolver implementation for the Spring beans DTD,
  * to load the DTD from the Spring class path (or JAR file).
+ * <p>
+ * Spring Beans DTD的文件解析器的实现，用来从Spring classpath或者jar包中加载dtd
  *
  * <p>Fetches "spring-beans.dtd" from the class path resource
  * "/org/springframework/beans/factory/xml/spring-beans.dtd",
@@ -38,13 +40,19 @@ import org.springframework.lang.Nullable;
  *
  * @author Juergen Hoeller
  * @author Colin Sampaleanu
- * @since 04.06.2003
  * @see ResourceEntityResolver
+ * @since 04.06.2003
  */
 public class BeansDtdResolver implements EntityResolver {
 
+	/**
+	 * DTD文件的后缀
+	 */
 	private static final String DTD_EXTENSION = ".dtd";
 
+	/**
+	 * Spring Beans DTD 的文件名
+	 */
 	private static final String DTD_NAME = "spring-beans";
 
 	private static final Log logger = LogFactory.getLog(BeansDtdResolver.class);
@@ -57,16 +65,20 @@ public class BeansDtdResolver implements EntityResolver {
 			logger.trace("Trying to resolve XML entity with public ID [" + publicId +
 					"] and system ID [" + systemId + "]");
 		}
+		// 必须以 .dtd 结尾
 		if (systemId != null && systemId.endsWith(DTD_EXTENSION)) {
 			int lastPathSeparator = systemId.lastIndexOf('/');
+			// 获取 spring-beans 的位置
 			int dtdNameStart = systemId.indexOf(DTD_NAME, lastPathSeparator);
-			if (dtdNameStart != -1) {
+			if (dtdNameStart != -1) { // 找到
 				String dtdFile = DTD_NAME + DTD_EXTENSION;
 				if (logger.isTraceEnabled()) {
 					logger.trace("Trying to locate [" + dtdFile + "] in Spring jar on classpath");
 				}
 				try {
+					// 创建 ClassPathResource 对象
 					Resource resource = new ClassPathResource(dtdFile, getClass());
+					// 创建 InputSource 对象，并设置 publicId、systemId 属性
 					InputSource source = new InputSource(resource.getInputStream());
 					source.setPublicId(publicId);
 					source.setSystemId(systemId);
@@ -74,8 +86,7 @@ public class BeansDtdResolver implements EntityResolver {
 						logger.trace("Found beans DTD [" + systemId + "] in classpath: " + dtdFile);
 					}
 					return source;
-				}
-				catch (IOException ex) {
+				} catch (IOException ex) {
 					if (logger.isDebugEnabled()) {
 						logger.debug("Could not resolve beans DTD [" + systemId + "]: not found in classpath", ex);
 					}
