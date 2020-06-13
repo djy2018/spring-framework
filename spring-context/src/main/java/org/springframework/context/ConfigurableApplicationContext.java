@@ -176,6 +176,10 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 	 * parent contexts have their own, independent lifecycle.
 	 * <p>This method can be called multiple times without side effects: Subsequent
 	 * {@code close} calls on an already closed context will be ignored.
+	 *
+	 * 关闭应用上下文，释放上下文持有的所有资源和锁。该过程包含销毁所有的缓存单例bean。
+	 * 注意：不能在父上下文调用 close 方法。父上下文拥有自己的、隔离的生命周期。
+	 * 该方法可以被无副作用地调用多次。如果该close方法已经被调用过，那么随后的调用将被忽略。
 	 */
 	@Override
 	void close();

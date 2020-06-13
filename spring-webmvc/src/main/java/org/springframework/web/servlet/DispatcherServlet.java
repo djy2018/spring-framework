@@ -69,6 +69,9 @@ import org.springframework.web.util.WebUtils;
  * or HTTP-based remote service exporters. Dispatches to registered handlers for processing
  * a web request, providing convenient mapping and exception handling facilities.
  *
+ * HTTP请求处理程序/控制器的中央调度程序，例如web UI控制器或基于HTTP的远程服务导出程序。
+ *分派给注册的处理程序来处理web请求，提供方便的映射和异常处理功能。
+ *
  * <p>This servlet is very flexible: It can be used with just about any workflow, with the
  * installation of the appropriate adapter classes. It offers the following functionality
  * that distinguishes it from other request-driven web MVC frameworks:

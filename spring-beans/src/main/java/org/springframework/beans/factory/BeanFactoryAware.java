@@ -32,11 +32,11 @@ import org.springframework.beans.BeansException;
  *
  * @author Rod Johnson
  * @author Chris Beams
- * @since 11.03.2003
  * @see BeanNameAware
  * @see BeanClassLoaderAware
  * @see InitializingBean
  * @see org.springframework.context.ApplicationContextAware
+ * @since 11.03.2003
  */
 public interface BeanFactoryAware extends Aware {
 
@@ -45,8 +45,13 @@ public interface BeanFactoryAware extends Aware {
 	 * <p>Invoked after the population of normal bean properties
 	 * but before an initialization callback such as
 	 * {@link InitializingBean#afterPropertiesSet()} or a custom init-method.
+	 * <p>
+	 * 将 BeanFactory 提供给 bean 实例回调。
+	 * 在 bean 属性填充之后、初始化回调之前回调，
+	 * 例如InitializingBean的InitializingBean.afterPropertiesSet（）方法或自定义init方法
+	 *
 	 * @param beanFactory owning BeanFactory (never {@code null}).
-	 * The bean can immediately call methods on the factory.
+	 *                    The bean can immediately call methods on the factory.
 	 * @throws BeansException in case of initialization errors
 	 * @see BeanInitializationException
 	 */

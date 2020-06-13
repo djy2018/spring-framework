@@ -28,10 +28,10 @@ package org.springframework.beans.factory;
  *
  * @author Juergen Hoeller
  * @author Chris Beams
- * @since 01.11.2003
  * @see BeanClassLoaderAware
  * @see BeanFactoryAware
  * @see InitializingBean
+ * @since 01.11.2003
  */
 public interface BeanNameAware extends Aware {
 
@@ -40,12 +40,17 @@ public interface BeanNameAware extends Aware {
 	 * <p>Invoked after population of normal bean properties but before an
 	 * init callback such as {@link InitializingBean#afterPropertiesSet()}
 	 * or a custom init-method.
+	 * <p>
+	 * 设置在创建该 bean 的 BeanFactory 中 bean 的名称，
+	 * 在普通 bean 属性填充之后，但是在初始化方法调用之前调用该方法，例如
+	 * InitializingBean#afterPropertiesSet() 或者 定制 init-method 方法
+	 *
 	 * @param name the name of the bean in the factory.
-	 * Note that this name is the actual bean name used in the factory, which may
-	 * differ from the originally specified name: in particular for inner bean
-	 * names, the actual bean name might have been made unique through appending
-	 * "#..." suffixes. Use the {@link BeanFactoryUtils#originalBeanName(String)}
-	 * method to extract the original bean name (without suffix), if desired.
+	 *             Note that this name is the actual bean name used in the factory, which may
+	 *             differ from the originally specified name: in particular for inner bean
+	 *             names, the actual bean name might have been made unique through appending
+	 *             "#..." suffixes. Use the {@link BeanFactoryUtils#originalBeanName(String)}
+	 *             method to extract the original bean name (without suffix), if desired.
 	 */
 	void setBeanName(String name);
 
