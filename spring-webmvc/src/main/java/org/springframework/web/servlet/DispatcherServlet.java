@@ -565,10 +565,13 @@ public class DispatcherServlet extends FrameworkServlet {
 		initHandlerMappings(context);
 		// 初始化 HandlerAdapter - 处理器适配器接口
 		initHandlerAdapters(context);
-
+		// 初始化 HandlerExceptionResolver - 处理器异常解析器接口，将处理器( handler )执行时发生的异常，解析( 转换 )成对应的 ModelAndView 结果
 		initHandlerExceptionResolvers(context);
+		// 初始化 RequestToViewNameTranslator - 请求到视图名的转换器接口
 		initRequestToViewNameTranslator(context);
+		// 初始化 ViewResolver - 实体解析器接口，根据视图名和国际化，获得最终的视图 View 对象
 		initViewResolvers(context);
+		// 初始化 FlashMapManager - FlashMap 管理器接口，负责重定向时，保存参数到临时存储中
 		initFlashMapManager(context);
 	}
 
@@ -951,13 +954,16 @@ public class DispatcherServlet extends FrameworkServlet {
 	/**
 	 * Exposes the DispatcherServlet-specific request attributes and delegates to {@link #doDispatch}
 	 * for the actual dispatching.
+	 * 暴露 DispatcherServlet 具体请求属性，代理给 {@link #doDispatch} 方法执行请求的分发
 	 */
 	@Override
 	protected void doService(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		// <1> 打印请求日志，并且日志级别为 DEBUG
 		logRequest(request);
 
 		// Keep a snapshot of the request attributes in case of an include,
 		// to be able to restore the original attributes after the include.
+		// <2> 保存请求属性的快照，防止 include 之后清除请求中的属性
 		Map<String, Object> attributesSnapshot = null;
 		if (WebUtils.isIncludeRequest(request)) {
 			attributesSnapshot = new HashMap<>();
@@ -971,11 +977,13 @@ public class DispatcherServlet extends FrameworkServlet {
 		}
 
 		// Make framework objects available to handlers and view objects.
+		// <3> 设置 Spring 框架中的常用对象到 request 属性中
 		request.setAttribute(WEB_APPLICATION_CONTEXT_ATTRIBUTE, getWebApplicationContext());
 		request.setAttribute(LOCALE_RESOLVER_ATTRIBUTE, this.localeResolver);
 		request.setAttribute(THEME_RESOLVER_ATTRIBUTE, this.themeResolver);
 		request.setAttribute(THEME_SOURCE_ATTRIBUTE, getThemeSource());
 
+		// <4> 设置请求中 input/output FlashMap 和 flashMapManager
 		if (this.flashMapManager != null) {
 			FlashMap inputFlashMap = this.flashMapManager.retrieveAndUpdate(request, response);
 			if (inputFlashMap != null) {
@@ -986,8 +994,10 @@ public class DispatcherServlet extends FrameworkServlet {
 		}
 
 		try {
+			// <5> 执行请求的分发
 			doDispatch(request, response);
 		} finally {
+			// <6> 并发请求处理未开始或结束后进行针对并发请求结果进一步处理，执行修复请求中属性快照
 			if (!WebAsyncUtils.getAsyncManager(request).isConcurrentHandlingStarted()) {
 				// Restore the original attribute snapshot, in case of an include.
 				if (attributesSnapshot != null) {
@@ -1035,6 +1045,10 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * to find the first that supports the handler class.
 	 * <p>All HTTP methods are handled by this method. It's up to HandlerAdapters or handlers
 	 * themselves to decide which methods are acceptable.
+	 * <p>
+	 * 将实际的分派给处理器处理。该处理器将通过依次应用servlet的处理器映射来获得。
+	 * HandlerAdapter将通过查询servlet已安装的HandlerAdapter来找到第一个支持handler类的HandlerAdapter。
+	 * 所有HTTP方法都由此方法处理。由处理器适配器或处理器本身来决定哪些方法是可接受的。
 	 *
 	 * @param request  current HTTP request
 	 * @param response current HTTP response
@@ -1045,6 +1059,7 @@ public class DispatcherServlet extends FrameworkServlet {
 		HandlerExecutionChain mappedHandler = null;
 		boolean multipartRequestParsed = false;
 
+		// <1> 判断请求是否是异步的管理器
 		WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
 
 		try {
@@ -1052,10 +1067,12 @@ public class DispatcherServlet extends FrameworkServlet {
 			Exception dispatchException = null;
 
 			try {
+				// <2> 校验请求类型是否为 MultipartHttpServletRequest ，Content-Type="multipart/form-data"
 				processedRequest = checkMultipart(request);
 				multipartRequestParsed = (processedRequest != request);
 
 				// Determine handler for the current request.
+				// <3> 获得请求对应的 HandlerExecutionChain 对象
 				mappedHandler = getHandler(processedRequest);
 				if (mappedHandler == null) {
 					noHandlerFound(processedRequest, response);
@@ -1063,6 +1080,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				}
 
 				// Determine handler adapter for the current request.
+				// <4> 获得当前 handler 对应的 HandlerAdapter 对象
 				HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
 
 				// Process last-modified header, if supported by the handler.
@@ -1075,18 +1093,23 @@ public class DispatcherServlet extends FrameworkServlet {
 					}
 				}
 
+				// <5> 前置处理拦截器
 				if (!mappedHandler.applyPreHandle(processedRequest, response)) {
 					return;
 				}
 
 				// Actually invoke the handler.
+				// <6> 真正的调用 handler 方法，并返回视图
 				mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
 
+				// <7> 异步请求且正在执行中
 				if (asyncManager.isConcurrentHandlingStarted()) {
 					return;
 				}
 
+				// <8> 如果view为空，则调用 RequestToViewNameTranslator 生成一个默认的 ViewName
 				applyDefaultViewName(processedRequest, mv);
+				// <9> 后置处理拦截器
 				mappedHandler.applyPostHandle(processedRequest, response, mv);
 			} catch (Exception ex) {
 				dispatchException = ex;

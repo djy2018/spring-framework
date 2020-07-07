@@ -1074,6 +1074,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		initContextHolders(request, localeContext, requestAttributes);
 
 		try {
+			// 执行真正的逻辑
 			doService(request, response);
 		} catch (ServletException | IOException ex) {
 			failureCause = ex;
@@ -1087,6 +1088,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 				requestAttributes.requestCompleted();
 			}
 			logResult(request, response, failureCause, asyncManager);
+			// 发布 ServletRequestHandledEvent 事件
 			publishRequestHandledEvent(request, response, startTime, failureCause);
 		}
 	}
@@ -1202,6 +1204,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		if (this.publishEvents && this.webApplicationContext != null) {
 			// Whether or not we succeeded, publish an event.
 			long processingTime = System.currentTimeMillis() - startTime;
+			// 创建 ServletRequestHandledEvent 事件，并进行发布
 			this.webApplicationContext.publishEvent(
 					new ServletRequestHandledEvent(this,
 							request.getRequestURI(), request.getRemoteAddr(),
@@ -1234,6 +1237,10 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	 * {@code doGet} or {@code doPost} methods of HttpServlet.
 	 * <p>This class intercepts calls to ensure that exception handling and
 	 * event publication takes place.
+	 * <p>
+	 * 子类必须实现这个抽象方法 {@link #doService} 去执行请求处理，即 GET/POST/PUT/DELETE的回调方法
+	 * 这与重写 HttpServlet 的 doGet或doPost 方法类似。
+	 * 该类拦截方法的调用以确保执行异常处理和事件发布
 	 *
 	 * @param request  current HTTP request
 	 * @param response current HTTP response
