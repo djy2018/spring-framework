@@ -40,6 +40,7 @@ public class HandlerExecutionChain {
 
 	private static final Log logger = LogFactory.getLog(HandlerExecutionChain.class);
 
+	// 处理器类型是 Object ，这个地方需要注意
 	private final Object handler;
 
 	@Nullable
