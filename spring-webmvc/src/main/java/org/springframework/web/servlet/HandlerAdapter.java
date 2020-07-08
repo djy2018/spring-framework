@@ -66,7 +66,9 @@ public interface HandlerAdapter {
 	 * <p>{@code
 	 * return (handler instanceof MyHandler);
 	 * }
+	 *
 	 * 是否支持该处理器
+	 *
 	 * @param handler handler object to check
 	 * @return whether or not this object can use the given handler
 	 */
@@ -75,15 +77,18 @@ public interface HandlerAdapter {
 	/**
 	 * Use the given handler to handle this request.
 	 * The workflow that is required may vary widely.
+	 *
+	 * 使用给定的 handler 去处理请求。所需的工作流程可能有很大的不同
 	 * 执行处理器，返回 ModelAndView 结果
-	 * @param request current HTTP request
+	 *
+	 * @param request  current HTTP request
 	 * @param response current HTTP response
-	 * @param handler handler to use. This object must have previously been passed
-	 * to the {@code supports} method of this interface, which must have
-	 * returned {@code true}.
-	 * @throws Exception in case of errors
+	 * @param handler  handler to use. This object must have previously been passed
+	 *                 to the {@code supports} method of this interface, which must have
+	 *                 returned {@code true}.
 	 * @return a ModelAndView object with the name of the view and the required
 	 * model data, or {@code null} if the request has been handled directly
+	 * @throws Exception in case of errors
 	 */
 	@Nullable
 	ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception;
