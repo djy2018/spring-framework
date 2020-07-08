@@ -16,10 +16,10 @@
 
 package org.springframework.web.servlet;
 
+import org.springframework.lang.Nullable;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.lang.Nullable;
 
 /**
  * Interface to be implemented by objects that can resolve exceptions thrown during
@@ -41,6 +41,9 @@ public interface HandlerExceptionResolver {
 	 * <p>The returned {@code ModelAndView} may be {@linkplain ModelAndView#isEmpty() empty}
 	 * to indicate that the exception has been resolved successfully but that no view
 	 * should be rendered, for instance by setting a status code.
+	 *
+	 * 处理 Handler 方法执行抛出的异常，并解析成 ModelAndView 结果.
+	 *
 	 * @param request current HTTP request
 	 * @param response current HTTP response
 	 * @param handler the executed handler, or {@code null} if none chosen at the

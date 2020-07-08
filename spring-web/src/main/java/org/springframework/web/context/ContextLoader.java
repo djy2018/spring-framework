@@ -171,6 +171,7 @@ public class ContextLoader {
 
 
 	/**
+	 * Root WebApplicationContext 对象
 	 * The root WebApplicationContext instance that this loader manages.
 	 */
 	@Nullable

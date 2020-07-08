@@ -44,6 +44,9 @@ public interface ViewResolver {
 	 * However, this is not required: Some ViewResolvers will always attempt
 	 * to build View objects with the given name, unable to return {@code null}
 	 * (rather throwing an exception when View creation failed).
+	 *
+	 * 根据视图名和国际化，获得最终的 View 对象
+	 *
 	 * @param viewName name of the view to resolve
 	 * @param locale the Locale in which to resolve the view.
 	 * ViewResolvers that support internationalization should respect this.
