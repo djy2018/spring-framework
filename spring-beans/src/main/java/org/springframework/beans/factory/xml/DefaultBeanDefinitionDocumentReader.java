@@ -16,18 +16,8 @@
 
 package org.springframework.beans.factory.xml;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
@@ -38,6 +28,15 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Default implementation of the {@link BeanDefinitionDocumentReader} interface that
@@ -135,7 +134,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		this.delegate = createDelegate(getReaderContext(), root, parent);
 		// <2> 检查 <beans /> 根标签的命名空间是否为空，或者是 http://www.springframework.org/schema/beans
 		if (this.delegate.isDefaultNamespace(root)) {
-			// <2.1> 处理 profile 属性。可参见《Spring3自定义环境配置 <beans profile=""> http://nassir.iteye.com/blog/1535799
+			// <2.1> 处理 profile 属性。可参见《Spring3自定义环境配置》 <beans profile=""> http://nassir.iteye.com/blog/1535799
 			String profileSpec = root.getAttribute(PROFILE_ATTRIBUTE);
 			if (StringUtils.hasText(profileSpec)) {
 				// <2.2> 使用分隔符切分，可能有多个 profile 。
@@ -176,15 +175,24 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * Parse the elements at the root level in the document:
 	 * "import", "alias", "bean".
 	 *
+	 * 注：
+	 * 默认命名空间 : import/alias/bean/beans
+	 * Spring有两种Bean声明方式：
+	 * 1) 配置文件式声明: <bean id="studentService" class="org.springframework.core.StudentService" />。对应 <1> 处。
+	 * 2) 自定义注解方式: <tx:annotation-driven> 。对应 <2> 处。
+	 *
 	 * @param root the DOM root element of the document
 	 */
 	protected void parseBeanDefinitions(Element root, BeanDefinitionParserDelegate delegate) {
+		// 1.如果根节点使用默认命名空间，执行默认解析
 		if (delegate.isDefaultNamespace(root)) {
+			// 遍历子节点
 			NodeList nl = root.getChildNodes();
 			for (int i = 0; i < nl.getLength(); i++) {
 				Node node = nl.item(i);
 				if (node instanceof Element) {
 					Element ele = (Element) node;
+					// 重复上述判断
 					if (delegate.isDefaultNamespace(ele)) {
 						parseDefaultElement(ele, delegate);
 					} else {
@@ -193,19 +201,23 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 				}
 			}
 		} else {
+			// 2.如果该节点非默认命名空间，执行自定义解析
 			delegate.parseCustomElement(root);
 		}
 	}
 
 	private void parseDefaultElement(Element ele, BeanDefinitionParserDelegate delegate) {
 		if (delegate.nodeNameEquals(ele, IMPORT_ELEMENT)) {
+			// import
 			importBeanDefinitionResource(ele);
 		} else if (delegate.nodeNameEquals(ele, ALIAS_ELEMENT)) {
+			// alias
 			processAliasRegistration(ele);
 		} else if (delegate.nodeNameEquals(ele, BEAN_ELEMENT)) {
+			// bean
 			processBeanDefinition(ele, delegate);
 		} else if (delegate.nodeNameEquals(ele, NESTED_BEANS_ELEMENT)) {
-			// recurse
+			// beans , beans标签元素，递归执行方法 doRegisterBeanDefinitions
 			doRegisterBeanDefinitions(ele);
 		}
 	}

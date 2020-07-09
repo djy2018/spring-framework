@@ -16,8 +16,6 @@
 
 package org.springframework.context;
 
-import java.io.Closeable;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -25,6 +23,8 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ProtocolResolver;
 import org.springframework.lang.Nullable;
+
+import java.io.Closeable;
 
 /**
  * SPI interface to be implemented by most if not all application contexts.
@@ -132,6 +132,10 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 	 * <p>Note that any ApplicationListener registered here will be applied
 	 * on refresh if the context is not active yet, or on the fly with the
 	 * current event multicaster in case of a context that is already active.
+	 *
+	 * 注意，如果上下文还没有激活，那么在这里注册的任何ApplicationListener都将在refresh上应用，
+	 * 或者在上下文已经激活的情况下与当前事件多播器一起运行。
+	 *
 	 * @param listener the ApplicationListener to register
 	 * @see org.springframework.context.event.ContextRefreshedEvent
 	 * @see org.springframework.context.event.ContextClosedEvent

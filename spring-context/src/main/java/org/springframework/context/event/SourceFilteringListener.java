@@ -99,6 +99,9 @@ public class SourceFilteringListener implements GenericApplicationListener, Smar
 	 * Actually process the event, after having filtered according to the
 	 * desired event source already.
 	 * <p>The default implementation invokes the specified delegate, if any.
+	 *
+	 * 根据所需的事件源过滤后，实际处理事件。默认实现调用指定的代理(如果有的话)。
+	 *
 	 * @param event the event to process (matching the specified source)
 	 */
 	protected void onApplicationEventInternal(ApplicationEvent event) {

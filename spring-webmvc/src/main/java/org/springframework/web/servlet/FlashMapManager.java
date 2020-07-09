@@ -16,14 +16,19 @@
 
 package org.springframework.web.servlet;
 
+import org.springframework.lang.Nullable;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.lang.Nullable;
 
 /**
  * A strategy interface for retrieving and saving FlashMap instances.
  * See {@link FlashMap} for a general overview of flash attributes.
+ *
+ * 默认情况下，这个临时存储会是 Session 。也就是说：
+ *
+ * 重定向前，保存参数到 Seesion 中。
+ * 重定向后，从 Session 中获得参数，并移除。
  *
  * @author Rossen Stoyanchev
  * @since 3.1
@@ -35,9 +40,15 @@ public interface FlashMapManager {
 	 * Find a FlashMap saved by a previous request that matches to the current
 	 * request, remove it from underlying storage, and also remove other
 	 * expired FlashMap instances.
+	 *
+	 * 恢复参数，并将恢复过的和超时的参数从保存介质中删除
+	 *
 	 * <p>This method is invoked in the beginning of every request in contrast
 	 * to {@link #saveOutputFlashMap}, which is invoked only when there are
 	 * flash attributes to be saved - i.e. before a redirect.
+	 *
+	 * 这个方法在每个请求开始时被调用，而{@link #saveOutputFlashMap}只在有要保存的flash属性时被调用 - 例如，在重定向之前。
+	 *
 	 * @param request the current request
 	 * @param response the current response
 	 * @return a FlashMap matching the current request or {@code null}
@@ -48,6 +59,8 @@ public interface FlashMapManager {
 	/**
 	 * Save the given FlashMap, in some underlying storage and set the start
 	 * of its expiration period.
+	 * 将参数保存起来
+	 *
 	 * <p><strong>NOTE:</strong> Invoke this method prior to a redirect in order
 	 * to allow saving the FlashMap in the HTTP session or in a response
 	 * cookie before the response is committed.

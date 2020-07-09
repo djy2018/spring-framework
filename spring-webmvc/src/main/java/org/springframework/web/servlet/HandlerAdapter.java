@@ -16,26 +16,35 @@
 
 package org.springframework.web.servlet;
 
+import org.springframework.lang.Nullable;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.lang.Nullable;
-
 /**
  * MVC framework SPI, allowing parameterization of the core MVC workflow.
+ * MVC框架SPI，允许参数化核心MVC工作流。
  *
  * <p>Interface that must be implemented for each handler type to handle a request.
  * This interface is used to allow the {@link DispatcherServlet} to be indefinitely
  * extensible. The {@code DispatcherServlet} accesses all installed handlers through
  * this interface, meaning that it does not contain code specific to any handler type.
  *
+ * 接口，必须为每个处理程序类型实现该接口以处理请求。这个接口用于允许{@link DispatcherServlet}无限扩展。
+ * {@code DispatcherServlet}通过这个接口访问所有安装的处理程序，这意味着它不包含特定于任何处理程序类型的代码。
+ *
  * <p>Note that a handler can be of type {@code Object}. This is to enable
  * handlers from other frameworks to be integrated with this framework without
  * custom coding, as well as to allow for annotation-driven handler objects that
  * do not obey any specific Java interface.
  *
+ * 注意，处理程序的类型可以是{@code Object}。
+ * 这是为了使来自其他框架的处理程序无需自定义编码就可以与此框架集成，并且允许不遵循任何特定Java接口的注释驱动的处理程序对象
+ *
  * <p>This interface is not intended for application developers. It is available
  * to handlers who want to develop their own web workflow.
+ *
+ * 此接口不适用于应用程序开发人员。对于想要开发自己的web工作流的处理程序来说，它是可用的
  *
  * <p>Note: {@code HandlerAdapter} implementors may implement the {@link
  * org.springframework.core.Ordered} interface to be able to specify a sorting
@@ -58,6 +67,8 @@ public interface HandlerAdapter {
 	 * return (handler instanceof MyHandler);
 	 * }
 	 *
+	 * 是否支持该处理器
+	 *
 	 * @param handler handler object to check
 	 * @return whether or not this object can use the given handler
 	 */
@@ -66,7 +77,9 @@ public interface HandlerAdapter {
 	/**
 	 * Use the given handler to handle this request.
 	 * The workflow that is required may vary widely.
+	 *
 	 * 使用给定的 handler 去处理请求。所需的工作流程可能有很大的不同
+	 * 执行处理器，返回 ModelAndView 结果
 	 *
 	 * @param request  current HTTP request
 	 * @param response current HTTP response
@@ -83,6 +96,9 @@ public interface HandlerAdapter {
 	/**
 	 * Same contract as for HttpServlet's {@code getLastModified} method.
 	 * Can simply return -1 if there's no support in the handler class.
+	 *
+	 * 返回请求的最新更新时间
+	 * 如果不支持该操作，则返回 -1 即可
 	 *
 	 * @param request current HTTP request
 	 * @param handler handler to use

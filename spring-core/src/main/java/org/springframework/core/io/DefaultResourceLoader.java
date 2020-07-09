@@ -16,6 +16,12 @@
 
 package org.springframework.core.io;
 
+import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.ResourceUtils;
+import org.springframework.util.StringUtils;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
@@ -23,12 +29,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.springframework.lang.Nullable;
-import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.ResourceUtils;
-import org.springframework.util.StringUtils;
 
 /**
  * Default implementation of the {@link ResourceLoader} interface.
@@ -50,6 +50,9 @@ public class DefaultResourceLoader implements ResourceLoader {
 	@Nullable
 	private ClassLoader classLoader;
 
+	/**
+	 * ProtocolResolver集合
+	 */
 	private final Set<ProtocolResolver> protocolResolvers = new LinkedHashSet<>(4);
 
 	private final Map<Class<?>, Map<Resource, ?>> resourceCaches = new ConcurrentHashMap<>(4);
@@ -100,8 +103,12 @@ public class DefaultResourceLoader implements ResourceLoader {
 	/**
 	 * Register the given resolver with this resource loader, allowing for
 	 * additional protocols to be handled.
+	 * 在此资源加载器中注册给定的解析器，允许处理附加协议。
 	 * <p>Any such resolver will be invoked ahead of this loader's standard
 	 * resolution rules. It may therefore also override any default rules.
+	 *
+	 * 任何此类解析器都将在此加载程序的标准解析规则之前调用。因此，它还可能覆盖任何默认规则。
+	 *
 	 * @since 4.3
 	 * @see #getProtocolResolvers()
 	 */
