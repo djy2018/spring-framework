@@ -40,15 +40,28 @@ public class HandlerExecutionChain {
 
 	private static final Log logger = LogFactory.getLog(HandlerExecutionChain.class);
 
-	// 处理器类型是 Object ，这个地方需要注意
+	// 处理器 : 处理器类型是 Object ，这个地方需要注意
 	private final Object handler;
 
+	/**
+	 * 拦截器数组
+	 */
 	@Nullable
 	private HandlerInterceptor[] interceptors;
 
+	/**
+	 * 拦截器数组。
+	 * <p>
+	 * 在实际使用时，会调用 {@link #getInterceptors()} 方法，初始化到 {@link #interceptors} 中
+	 */
 	@Nullable
 	private List<HandlerInterceptor> interceptorList;
 
+	/**
+	 * 已执行 {@link HandlerInterceptor#preHandle(HttpServletRequest, HttpServletResponse, Object)} 的位置
+	 * <p>
+	 * 主要用于实现 {@link #triggerAfterCompletion(HttpServletRequest, HttpServletResponse, Exception)} 的逻辑
+	 */
 	private int interceptorIndex = -1;
 
 
@@ -72,6 +85,7 @@ public class HandlerExecutionChain {
 		if (handler instanceof HandlerExecutionChain) {
 			HandlerExecutionChain originalChain = (HandlerExecutionChain) handler;
 			this.handler = originalChain.getHandler();
+			// 初始化到 interceptorList 中
 			this.interceptorList = new ArrayList<>();
 			CollectionUtils.mergeArrayIntoCollection(originalChain.getInterceptors(), this.interceptorList);
 			CollectionUtils.mergeArrayIntoCollection(interceptors, this.interceptorList);
@@ -118,9 +132,11 @@ public class HandlerExecutionChain {
 	 */
 	@Nullable
 	public HandlerInterceptor[] getInterceptors() {
+		// 将 interceptorList 初始化到 interceptors 中
 		if (this.interceptors == null && this.interceptorList != null) {
 			this.interceptors = this.interceptorList.toArray(new HandlerInterceptor[0]);
 		}
+		// 返回 interceptors 数组
 		return this.interceptors;
 	}
 
@@ -139,18 +155,24 @@ public class HandlerExecutionChain {
 	 * false:拦截器拦截住请求，执行完 preHandle 方法逻辑，不再转发请求至 Handler方法
 	 */
 	boolean applyPreHandle(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		// <1> 获得拦截器数组
 		HandlerInterceptor[] interceptors = getInterceptors();
 		if (!ObjectUtils.isEmpty(interceptors)) {
+			// <2> 遍历拦截器数组
 			for (int i = 0; i < interceptors.length; i++) {
 				HandlerInterceptor interceptor = interceptors[i];
+				// <3> 前置处理
 				if (!interceptor.preHandle(request, response, this.handler)) {
-					// 返回前端之前，一定要执行 HandlerInterceptor#afterCompletion 方法
+					// <3.1> 触发已完成处理。返回前端之前，一定要执行 HandlerInterceptor#afterCompletion 方法
 					triggerAfterCompletion(request, response, null);
+					// 返回 false ，前置处理失败
 					return false;
 				}
+				// <3.2> 标记 interceptorIndex 位置
 				this.interceptorIndex = i;
 			}
 		}
+		// <4> 返回 true ，前置处理成功 - 全部拦截器执行成功
 		return true;
 	}
 
@@ -159,11 +181,13 @@ public class HandlerExecutionChain {
 	 */
 	void applyPostHandle(HttpServletRequest request, HttpServletResponse response, @Nullable ModelAndView mv)
 			throws Exception {
-
+		// 获取拦截器数组
 		HandlerInterceptor[] interceptors = getInterceptors();
 		if (!ObjectUtils.isEmpty(interceptors)) {
+			// 遍历拦截器数组
 			for (int i = interceptors.length - 1; i >= 0; i--) {
 				HandlerInterceptor interceptor = interceptors[i];
+				// 拦截器 后置处理
 				interceptor.postHandle(request, response, this.handler, mv);
 			}
 		}
@@ -173,17 +197,25 @@ public class HandlerExecutionChain {
 	 * Trigger afterCompletion callbacks on the mapped HandlerInterceptors.
 	 * Will just invoke afterCompletion for all interceptors whose preHandle invocation
 	 * has successfully completed and returned true.
+	 * <p>
+	 * 在映射的 HandlerInterceptor 上触发 afterCompletion 回调方法。
+	 * 仅仅触发 {@link HandlerInterceptor#preHandle(HttpServletRequest, HttpServletResponse, Object) } 方法执行完成且返回为true的
+	 * 拦截器的 {@link HandlerInterceptor#afterCompletion} 方法
 	 */
 	void triggerAfterCompletion(HttpServletRequest request, HttpServletResponse response, @Nullable Exception ex)
 			throws Exception {
-
+		// 获得拦截器数组
 		HandlerInterceptor[] interceptors = getInterceptors();
 		if (!ObjectUtils.isEmpty(interceptors)) {
+			// 遍历拦截器数组
 			for (int i = this.interceptorIndex; i >= 0; i--) {
 				HandlerInterceptor interceptor = interceptors[i];
 				try {
+					// 已完成处理
 					interceptor.afterCompletion(request, response, this.handler, ex);
 				} catch (Throwable ex2) {
+					// 如果执行失败，仅仅会打印错误日志，不会结束循环。
+					// 打印日志方式	org.apache.commons.logging.Log.error(java.lang.Object, java.lang.Throwable)
 					logger.error("HandlerInterceptor.afterCompletion threw exception", ex2);
 				}
 			}

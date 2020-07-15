@@ -44,14 +44,26 @@ import org.springframework.web.servlet.ModelAndView;
  */
 public final class MappedInterceptor implements HandlerInterceptor {
 
+	/**
+	 * 匹配的路径
+	 */
 	@Nullable
 	private final String[] includePatterns;
 
+	/**
+	 * 不匹配的路径
+	 */
 	@Nullable
 	private final String[] excludePatterns;
 
+	/**
+	 * HandlerInterceptor 拦截器对象
+	 */
 	private final HandlerInterceptor interceptor;
 
+	/**
+	 * 路径匹配器
+	 */
 	@Nullable
 	private PathMatcher pathMatcher;
 
@@ -139,12 +151,14 @@ public final class MappedInterceptor implements HandlerInterceptor {
 
 	/**
 	 * Determine a match for the given lookup path.
+	 * 确定给定查找路径的匹配。
 	 * @param lookupPath the current request path
 	 * @param pathMatcher a path matcher for path pattern matching
 	 * @return {@code true} if the interceptor applies to the given request path
 	 */
 	public boolean matches(String lookupPath, PathMatcher pathMatcher) {
 		PathMatcher pathMatcherToUse = (this.pathMatcher != null ? this.pathMatcher : pathMatcher);
+		// 	1.先遍历排除路径列表，如果匹配，则返回false
 		if (!ObjectUtils.isEmpty(this.excludePatterns)) {
 			for (String pattern : this.excludePatterns) {
 				if (pathMatcherToUse.match(pattern, lookupPath)) {
@@ -152,9 +166,11 @@ public final class MappedInterceptor implements HandlerInterceptor {
 				}
 			}
 		}
+		// 2.如果匹配路径列表为空，则返回true，直接匹配
 		if (ObjectUtils.isEmpty(this.includePatterns)) {
 			return true;
 		}
+		// 3.遍历匹配路径列表，如果匹配，则返回true
 		for (String pattern : this.includePatterns) {
 			if (pathMatcherToUse.match(pattern, lookupPath)) {
 				return true;

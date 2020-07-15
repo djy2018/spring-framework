@@ -86,6 +86,9 @@ public interface HandlerInterceptor {
 	 * request processing. For more details see
 	 * {@link org.springframework.web.servlet.AsyncHandlerInterceptor}.
 	 * <p>The default implementation returns {@code true}.
+	 *
+	 * 拦截处理器，在 {@link HandlerAdapter#handle(HttpServletRequest, HttpServletResponse, Object)} 执行之前
+	 *
 	 * @param request current HTTP request
 	 * @param response current HTTP response
 	 * @param handler chosen handler to execute, for type and/or instance evaluation
@@ -112,6 +115,8 @@ public interface HandlerInterceptor {
 	 * request processing. For more details see
 	 * {@link org.springframework.web.servlet.AsyncHandlerInterceptor}.
 	 * <p>The default implementation is empty.
+	 *
+	 * 拦截处理器，在 {@link HandlerAdapter#handle(HttpServletRequest, HttpServletResponse, Object)} 执行成功之后
 	 * @param request current HTTP request
 	 * @param response current HTTP response
 	 * @param handler handler (or {@link HandlerMethod}) that started asynchronous
@@ -137,6 +142,10 @@ public interface HandlerInterceptor {
 	 * request processing. For more details see
 	 * {@link org.springframework.web.servlet.AsyncHandlerInterceptor}.
 	 * <p>The default implementation is empty.
+	 *
+	 * 拦截处理器，在 {@link HandlerAdapter} 执行完之后，无论成功还是失败
+	 * 并且，只有 {@link #preHandle(HttpServletRequest, HttpServletResponse, Object)} 执行成功之后，才会被执行
+	 *
 	 * @param request current HTTP request
 	 * @param response current HTTP response
 	 * @param handler handler (or {@link HandlerMethod}) that started asynchronous
