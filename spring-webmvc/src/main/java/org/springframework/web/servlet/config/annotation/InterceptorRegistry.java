@@ -46,7 +46,7 @@ public class InterceptorRegistry {
 	 * registered interceptor further for example adding URL patterns it should apply to.
 	 */
 	public InterceptorRegistration addInterceptor(HandlerInterceptor interceptor) {
-		InterceptorRegistration registration = new InterceptorRegistration(interceptor);
+		InterceptorRegistration registration = new IntercepptorRegistration(interceptor);
 		this.registrations.add(registration);
 		return registration;
 	}

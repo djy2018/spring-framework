@@ -43,11 +43,21 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * {@linkplain #getMethod() method} and a {@linkplain #getBean() bean}.
  * Provides convenient access to method parameters, the method return value,
  * method annotations, etc.
+ * <p>
+ * 封装关于由{@linkplain #getMethod() method}和{@linkplain #getBean() bean}组成的处理器方法的信息。
+ * 提供对方法参数、方法返回值、方法注释等的方便访问。
  *
  * <p>The class may be created with a bean instance or with a bean name
  * (e.g. lazy-init bean, prototype bean). Use {@link #createWithResolvedBean()}
  * to obtain a {@code HandlerMethod} instance with a bean instance resolved
  * through the associated {@link BeanFactory}.
+ * <p>
+ * 类可以用一个bean实例创建，也可以用一个bean名创建(例如:lazy-init bean、原型bean)。
+ * 使用{@link #createWithResolvedBean()}获得一个{@code HandlerMethod}实例，
+ * 该实例带有通过关联的{@link BeanFactory}解析的bean实例。
+ * => 模板模型方法 org.springframework.web.servlet.handler.AbstractHandlerMethodMapping#getHandlerInternal
+ * 在方法最后调用 org.springframework.web.method.HandlerMethod#createWithResolvedBean()
+ * 从而确保 HandlerMethod#bean 是 Handler处理器对象，而非 Handler 处理器对象的 beanName
  *
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
@@ -57,31 +67,68 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  */
 public class HandlerMethod {
 
-	/** Logger that is available to subclasses. */
+	/**
+	 * Logger that is available to subclasses.
+	 */
 	protected final Log logger = LogFactory.getLog(getClass());
 
+	/**
+	 * Bean 对象
+	 */
 	private final Object bean;
 
 	@Nullable
 	private final BeanFactory beanFactory;
 
+	/**
+	 * Bean 的类型
+	 */
 	private final Class<?> beanType;
 
+	/**
+	 * 方法
+	 */
 	private final Method method;
 
+	/**
+	 * {@link #method} 的桥接方法
+	 * <p>
+	 * 详细说明
+	 * <p>
+	 * 1. https://www.jianshu.com/p/250030ea9b28
+	 * 2. https://blog.csdn.net/mhmyqn/article/details/47342577
+	 */
 	private final Method bridgedMethod;
 
+	/**
+	 * 方法参数数组
+	 */
 	private final MethodParameter[] parameters;
 
+	/**
+	 * 响应的状态码，即 {@link ResponseStatus#code()}
+	 */
 	@Nullable
 	private HttpStatus responseStatus;
 
+	/**
+	 * 响应的状态码原因，即 {@link ResponseStatus#reason()}
+	 */
 	@Nullable
 	private String responseStatusReason;
 
+
+	/**
+	 * 解析自哪个 HandlerMethod 对象
+	 * <p>
+	 * 仅构造方法中传入 HandlerMethod 类型的参数适用，例如 {@link #HandlerMethod(HandlerMethod)}
+	 */
 	@Nullable
 	private HandlerMethod resolvedFromHandlerMethod;
 
+	/**
+	 * 父接口的方法的参数注解数组
+	 */
 	@Nullable
 	private volatile List<Annotation[][]> interfaceParameterAnnotations;
 
@@ -92,17 +139,24 @@ public class HandlerMethod {
 	public HandlerMethod(Object bean, Method method) {
 		Assert.notNull(bean, "Bean is required");
 		Assert.notNull(method, "Method is required");
+		// 初始化 bean
 		this.bean = bean;
+		// 置空 beanFactory ，因为不用
 		this.beanFactory = null;
+		// 初始化 beanType 属性
 		this.beanType = ClassUtils.getUserClass(bean);
+		// 初始化 method 和 bridgedMethod 属性
 		this.method = method;
 		this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
+		// 初始化 parameters 属性
 		this.parameters = initMethodParameters();
+		// 初始化 responseStatus、responseStatusReason 属性
 		evaluateResponseStatus();
 	}
 
 	/**
 	 * Create an instance from a bean instance, method name, and parameter types.
+	 *
 	 * @throws NoSuchMethodException when the method cannot be found
 	 */
 	public HandlerMethod(Object bean, String methodName, Class<?>... parameterTypes) throws NoSuchMethodException {
@@ -126,16 +180,21 @@ public class HandlerMethod {
 		Assert.hasText(beanName, "Bean name is required");
 		Assert.notNull(beanFactory, "BeanFactory is required");
 		Assert.notNull(method, "Method is required");
+		// <1> 将 beanName 赋值给 bean 属性，说明 beanFactory + bean 的方式，获得 handler 对象
 		this.bean = beanName;
 		this.beanFactory = beanFactory;
+		// <2> 初始化 beanType 属性
 		Class<?> beanType = beanFactory.getType(beanName);
 		if (beanType == null) {
 			throw new IllegalStateException("Cannot resolve bean type for bean with name '" + beanName + "'");
 		}
 		this.beanType = ClassUtils.getUserClass(beanType);
+		// <3> 初始化 method、bridgedMethod 属性
 		this.method = method;
 		this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
+		// <4> 初始化 parameters 属性
 		this.parameters = initMethodParameters();
+		// <5> 初始化 responseStatus、responseStatusReason 属性
 		evaluateResponseStatus();
 	}
 
@@ -175,9 +234,12 @@ public class HandlerMethod {
 
 	private MethodParameter[] initMethodParameters() {
 		int count = this.bridgedMethod.getParameterCount();
+		// 创建 MethodParameter 数组
 		MethodParameter[] result = new MethodParameter[count];
+		// 遍历 bridgedMethod 的参数，逐个解析参数类型
 		for (int i = 0; i < count; i++) {
 			HandlerMethodParameter parameter = new HandlerMethodParameter(i);
+			// TODO : GenericTypeResolver作用 和 MethodParameter 研究
 			GenericTypeResolver.resolveParameterType(parameter, this.beanType);
 			result[i] = parameter;
 		}
@@ -236,8 +298,9 @@ public class HandlerMethod {
 
 	/**
 	 * Return the specified response status, if any.
-	 * @since 4.3.8
+	 *
 	 * @see ResponseStatus#code()
+	 * @since 4.3.8
 	 */
 	@Nullable
 	protected HttpStatus getResponseStatus() {
@@ -246,8 +309,9 @@ public class HandlerMethod {
 
 	/**
 	 * Return the associated response status reason, if any.
-	 * @since 4.3.8
+	 *
 	 * @see ResponseStatus#reason()
+	 * @since 4.3.8
 	 */
 	@Nullable
 	protected String getResponseStatusReason() {
@@ -280,6 +344,7 @@ public class HandlerMethod {
 	 * if no annotation can be found on the given method itself.
 	 * <p>Also supports <em>merged</em> composed annotations with attribute
 	 * overrides as of Spring Framework 4.2.2.
+	 *
 	 * @param annotationType the type of annotation to introspect the method for
 	 * @return the annotation, or {@code null} if none found
 	 * @see AnnotatedElementUtils#findMergedAnnotation
@@ -291,9 +356,10 @@ public class HandlerMethod {
 
 	/**
 	 * Return whether the parameter is declared with the given annotation type.
+	 *
 	 * @param annotationType the annotation type to look for
-	 * @since 4.3
 	 * @see AnnotatedElementUtils#hasAnnotation
+	 * @since 4.3
 	 */
 	public <A extends Annotation> boolean hasMethodAnnotation(Class<A> annotationType) {
 		return AnnotatedElementUtils.hasAnnotation(this.method, annotationType);
@@ -311,19 +377,25 @@ public class HandlerMethod {
 	/**
 	 * If the provided instance contains a bean name rather than an object instance,
 	 * the bean name is resolved before a {@link HandlerMethod} is created and returned.
+	 * <p>
+	 * 如果匹配到的 HandlerMethod 对应的 bean 属性是 String 类型 而非一个 Object 实例，
+	 * 则在 HandlerMethod 实例被创建和返回之前 bean 属性被解析成 IOC 容器中的 bean（通过 BeanFactory）
 	 */
 	public HandlerMethod createWithResolvedBean() {
 		Object handler = this.bean;
+		// 如果是 bean 是 String类型，则获取对应的 handler 对象。例如，bean = userController 字符串，获取后，handler = UserController 对象
 		if (this.bean instanceof String) {
 			Assert.state(this.beanFactory != null, "Cannot resolve bean name without BeanFactory");
 			String beanName = (String) this.bean;
 			handler = this.beanFactory.getBean(beanName);
 		}
+		// 创建 HandlerMethod 对象
 		return new HandlerMethod(this, handler);
 	}
 
 	/**
 	 * Return a short representation of this handler method for log message purposes.
+	 *
 	 * @since 4.3
 	 */
 	public String getShortLogMessage() {

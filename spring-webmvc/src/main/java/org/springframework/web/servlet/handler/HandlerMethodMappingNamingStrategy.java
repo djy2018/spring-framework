@@ -20,6 +20,8 @@ import org.springframework.web.method.HandlerMethod;
 
 /**
  * A strategy for assigning a name to a handler method's mapping.
+ * <p>
+ * Handler 的 Method 的 Mapping 的名字生成策略接口
  *
  * <p>The strategy can be configured on
  * {@link org.springframework.web.servlet.handler.AbstractHandlerMethodMapping
@@ -34,17 +36,22 @@ import org.springframework.web.method.HandlerMethod;
  * MvcUriComponentsBuilder#fromMappingName} or in JSPs through the "mvcUrl"
  * function registered by the Spring tag library.
  *
+ * @param <T> the mapping type
  * @author Rossen Stoyanchev
  * @since 4.1
- * @param <T> the mapping type
  */
 @FunctionalInterface
 public interface HandlerMethodMappingNamingStrategy<T> {
 
 	/**
 	 * Determine the name for the given HandlerMethod and mapping.
+	 * 获得给定 HandlerMethod 和映射的名称
+	 * =>
+	 * Handler 的 Method 的 Mapping 的名字生成接口
+	 * => Mapping名字生成接口，这样我就可以根据 Mapping 的名字获取 Handler
+	 *
 	 * @param handlerMethod the handler method
-	 * @param mapping the mapping
+	 * @param mapping       the mapping
 	 * @return the name
 	 */
 	String getName(HandlerMethod handlerMethod, T mapping);

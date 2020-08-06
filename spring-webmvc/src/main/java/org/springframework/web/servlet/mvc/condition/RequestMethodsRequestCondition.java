@@ -43,13 +43,17 @@ public final class RequestMethodsRequestCondition extends AbstractRequestConditi
 	private static final RequestMethodsRequestCondition GET_CONDITION =
 			new RequestMethodsRequestCondition(RequestMethod.GET);
 
+	/**
+	 * RequestMethod 集合
+	 */
 	private final Set<RequestMethod> methods;
 
 
 	/**
 	 * Create a new instance with the given request methods.
+	 *
 	 * @param requestMethods 0 or more HTTP request methods;
-	 * if, 0 the condition will match to every request
+	 *                       if, 0 the condition will match to every request
 	 */
 	public RequestMethodsRequestCondition(RequestMethod... requestMethods) {
 		this(Arrays.asList(requestMethods));
@@ -91,6 +95,9 @@ public final class RequestMethodsRequestCondition extends AbstractRequestConditi
 	/**
 	 * Check if any of the HTTP request methods match the given request and
 	 * return an instance that contains the matching HTTP request method only.
+	 * <p>
+	 * 检查是否有任何 HTTP 请求方法与给定请求匹配，并返回一个仅包含匹配 HTTP 请求方法的实例。
+	 *
 	 * @param request the current request
 	 * @return the same instance if the condition is empty (unless the request
 	 * method is HTTP OPTIONS), a new condition with the matched request method,
@@ -103,16 +110,17 @@ public final class RequestMethodsRequestCondition extends AbstractRequestConditi
 		if (CorsUtils.isPreFlightRequest(request)) {
 			return matchPreFlight(request);
 		}
-
+		// 空的情况下，就返回自身
 		if (getMethods().isEmpty()) {
 			if (RequestMethod.OPTIONS.name().equals(request.getMethod()) &&
 					!DispatcherType.ERROR.equals(request.getDispatcherType())) {
 
 				return null; // No implicit match for OPTIONS (we handle it)
 			}
+			// 也就是说，没有 RequestMethod 的条件，一定匹配成功，且结果就是自身 RequestMethodsRequestCondition 对象。
 			return this;
 		}
-
+		// 非空，逐个匹配
 		return matchRequestMethod(request.getMethod());
 	}
 
@@ -161,12 +169,10 @@ public final class RequestMethodsRequestCondition extends AbstractRequestConditi
 	public int compareTo(RequestMethodsRequestCondition other, HttpServletRequest request) {
 		if (other.methods.size() != this.methods.size()) {
 			return other.methods.size() - this.methods.size();
-		}
-		else if (this.methods.size() == 1) {
+		} else if (this.methods.size() == 1) {
 			if (this.methods.contains(RequestMethod.HEAD) && other.methods.contains(RequestMethod.GET)) {
 				return -1;
-			}
-			else if (this.methods.contains(RequestMethod.GET) && other.methods.contains(RequestMethod.HEAD)) {
+			} else if (this.methods.contains(RequestMethod.GET) && other.methods.contains(RequestMethod.HEAD)) {
 				return 1;
 			}
 		}

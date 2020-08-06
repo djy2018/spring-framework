@@ -115,7 +115,11 @@ public interface Controller {
 	 * will render. A {@code null} return value is not an error: it indicates that
 	 * this object completed request processing itself and that there is therefore no
 	 * ModelAndView to render.
-	 * @param request current HTTP request
+	 * <p>
+	 * 处理请求并返回一个ModelAndView对象，DispatcherServlet将呈现这个对象。
+	 * 一个{@code null}返回值不是一个错误:它表示这个对象本身完成了请求处理，因此没有ModelAndView要呈现。
+	 *
+	 * @param request  current HTTP request
 	 * @param response current HTTP response
 	 * @return a ModelAndView to render, or {@code null} if handled directly
 	 * @throws Exception in case of errors

@@ -70,12 +70,14 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 
 
 	protected RequestMappingInfoHandlerMapping() {
+		// 设置了 AbstractHandlerMethodMapping.namingStrategy 属性z,
 		setHandlerMethodMappingNamingStrategy(new RequestMappingInfoHandlerMethodMappingNamingStrategy());
 	}
 
 
 	/**
 	 * Get the URL path patterns associated with this {@link RequestMappingInfo}.
+	 * 获得 Mapping 对应的请求路径集合
 	 */
 	@Override
 	protected Set<String> getMappingPathPatterns(RequestMappingInfo info) {
@@ -103,6 +105,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 
 	/**
 	 * Expose URI template variables, matrix variables, and producible media types in the request.
+	 * 在请求中公开 URI 模板变量、矩阵变量和可生成的媒体类型。
 	 * @see HandlerMapping#URI_TEMPLATE_VARIABLES_ATTRIBUTE
 	 * @see HandlerMapping#MATRIX_VARIABLES_ATTRIBUTE
 	 * @see HandlerMapping#PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE
@@ -110,7 +113,11 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 	@Override
 	protected void handleMatch(RequestMappingInfo info, String lookupPath, HttpServletRequest request) {
 		super.handleMatch(info, lookupPath, request);
-
+		/*
+		 * 获得 bestPattern 和 uriVariables
+		 * bestPattern  - 最佳路径
+		 * uriVariables - 路径上的变量集合
+		 */
 		String bestPattern;
 		Map<String, String> uriVariables;
 
@@ -121,19 +128,23 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 		}
 		else {
 			bestPattern = patterns.iterator().next();
+			// * For pattern "/hotels/{hotel}" and path "/hotels/1", this method will return a map containing "hotel"->"1".
 			uriVariables = getPathMatcher().extractUriTemplateVariables(bestPattern, lookupPath);
 		}
 
 		request.setAttribute(BEST_MATCHING_PATTERN_ATTRIBUTE, bestPattern);
 
+		// 设置 MATRIX_VARIABLES_ATTRIBUTE 属性，到请求中
 		if (isMatrixVariableContentAvailable()) {
 			Map<String, MultiValueMap<String, String>> matrixVars = extractMatrixVariables(request, uriVariables);
 			request.setAttribute(HandlerMapping.MATRIX_VARIABLES_ATTRIBUTE, matrixVars);
 		}
 
+		// 设置 URI_TEMPLATE_VARIABLES_ATTRIBUTE 属性，到请求中
 		Map<String, String> decodedUriVariables = getUrlPathHelper().decodePathVariables(request, uriVariables);
 		request.setAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, decodedUriVariables);
 
+		// 设置 PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE 属性，到请求中
 		if (!info.getProducesCondition().getProducibleMediaTypes().isEmpty()) {
 			Set<MediaType> mediaTypes = info.getProducesCondition().getProducibleMediaTypes();
 			request.setAttribute(PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE, mediaTypes);
@@ -185,12 +196,13 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 	@Override
 	protected HandlerMethod handleNoMatch(
 			Set<RequestMappingInfo> infos, String lookupPath, HttpServletRequest request) throws ServletException {
-
+		// <1> 创建 PartialMatchHelper 对象，解析可能的错误
 		PartialMatchHelper helper = new PartialMatchHelper(infos, request);
 		if (helper.isEmpty()) {
 			return null;
 		}
 
+		// <2> 方法错误;例如说 POST user/login 存在，但是我们请求了 GET user/login
 		if (helper.hasMethodsMismatch()) {
 			Set<String> methods = helper.getAllowedMethods();
 			if (HttpMethod.OPTIONS.matches(request.getMethod())) {
@@ -200,6 +212,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 			throw new HttpRequestMethodNotSupportedException(request.getMethod(), methods);
 		}
 
+		// <3> 可消费的 Content-Type 错误
 		if (helper.hasConsumesMismatch()) {
 			Set<MediaType> mediaTypes = helper.getConsumableMediaTypes();
 			MediaType contentType = null;
@@ -214,11 +227,13 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 			throw new HttpMediaTypeNotSupportedException(contentType, new ArrayList<>(mediaTypes));
 		}
 
+		// <4> 可生产的 Content-Type 错误
 		if (helper.hasProducesMismatch()) {
 			Set<MediaType> mediaTypes = helper.getProducibleMediaTypes();
 			throw new HttpMediaTypeNotAcceptableException(new ArrayList<>(mediaTypes));
 		}
 
+		// <5> 参数错误
 		if (helper.hasParamsMismatch()) {
 			List<String[]> conditions = helper.getParamConditions();
 			throw new UnsatisfiedServletRequestParameterException(conditions, request.getParameterMap());
@@ -230,6 +245,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 
 	/**
 	 * Aggregate all partial matches and expose methods checking across them.
+	 * 聚合所有部分匹配并公开方法检查它们。
 	 */
 	private static class PartialMatchHelper {
 

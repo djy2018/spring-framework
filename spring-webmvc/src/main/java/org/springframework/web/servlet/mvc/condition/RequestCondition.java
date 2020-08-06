@@ -28,17 +28,20 @@ import org.springframework.lang.Nullable;
  * to each other via {@link #compareTo(Object, HttpServletRequest)} to determine
  * which is a closer match for a given request.
  *
+ * @param <T> the type of objects that this RequestCondition can be combined
+ *            with and compared to
  * @author Rossen Stoyanchev
  * @author Arjen Poutsma
  * @since 3.1
- * @param <T> the type of objects that this RequestCondition can be combined
- * with and compared to
  */
 public interface RequestCondition<T> {
 
 	/**
 	 * Combine this condition with another such as conditions from a
 	 * type-level and method-level {@code @RequestMapping} annotation.
+	 * <p>
+	 * 合并方法
+	 *
 	 * @param other the condition to combine with.
 	 * @return a request condition instance that is the result of combining
 	 * the two condition instances.
@@ -50,17 +53,24 @@ public interface RequestCondition<T> {
 	 * instance created for the current request. For example a condition with
 	 * multiple URL patterns may return a new instance only with those patterns
 	 * that match the request.
+	 * <p>
+	 * 检查条件是否与请求匹配，该请求返回一个可能为当前请求创建的新实例。
+	 * 例如，具有多个URL模式的条件可能只返回具有与请求匹配的模式的新实例。
+	 *
 	 * <p>For CORS pre-flight requests, conditions should match to the would-be,
 	 * actual request (e.g. URL pattern, query parameters, and the HTTP method
 	 * from the "Access-Control-Request-Method" header). If a condition cannot
 	 * be matched to a pre-flight request it should return an instance with
 	 * empty content thus not causing a failure to match.
+	 *
 	 * @return a condition instance in case of a match or {@code null} otherwise.
 	 */
 	@Nullable
 	T getMatchingCondition(HttpServletRequest request);
 
 	/**
+	 * 比较方法
+	 * <p>
 	 * Compare this condition to another condition in the context of
 	 * a specific request. This method assumes both instances have
 	 * been obtained via {@link #getMatchingCondition(HttpServletRequest)}

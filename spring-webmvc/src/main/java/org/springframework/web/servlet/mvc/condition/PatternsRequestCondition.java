@@ -37,6 +37,8 @@ import org.springframework.web.util.UrlPathHelper;
  * A logical disjunction (' || ') request condition that matches a request
  * against a set of URL path patterns.
  *
+ * 逻辑析取(' || ')请求条件，根据一组URL路径模式匹配请求。
+ *
  * @author Rossen Stoyanchev
  * @since 3.1
  */

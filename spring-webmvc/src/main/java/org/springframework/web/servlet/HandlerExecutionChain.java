@@ -163,7 +163,7 @@ public class HandlerExecutionChain {
 				HandlerInterceptor interceptor = interceptors[i];
 				// <3> 前置处理
 				if (!interceptor.preHandle(request, response, this.handler)) {
-					// <3.1> 触发已完成处理。返回前端之前，一定要执行 HandlerInterceptor#afterCompletion 方法
+					// <3.1> 触发已完成处理。
 					triggerAfterCompletion(request, response, null);
 					// 返回 false ，前置处理失败
 					return false;

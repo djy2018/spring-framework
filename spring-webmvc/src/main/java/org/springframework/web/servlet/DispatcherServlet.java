@@ -301,6 +301,9 @@ public class DispatcherServlet extends FrameworkServlet {
 	 */
 	protected static final Log pageNotFoundLogger = LogFactory.getLog(PAGE_NOT_FOUND_LOG_CATEGORY);
 
+	/**
+	 * 默认配置类
+	 */
 	private static final Properties defaultStrategies;
 
 	static {
@@ -308,6 +311,7 @@ public class DispatcherServlet extends FrameworkServlet {
 		// This is currently strictly internal and not meant to be customized
 		// by application developers.
 		try {
+			// 初始化 defaultStrategies
 			ClassPathResource resource = new ClassPathResource(DEFAULT_STRATEGIES_PATH, DispatcherServlet.class);
 			defaultStrategies = PropertiesLoaderUtils.loadProperties(resource);
 		} catch (IOException ex) {
@@ -649,10 +653,12 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * we default to BeanNameUrlHandlerMapping.
 	 */
 	private void initHandlerMappings(ApplicationContext context) {
+		// 置空 handlerMappings
 		this.handlerMappings = null;
-
+		// <1> 如果开启探测功能，则扫描已注册的 HandlerMapping 的 Bean 们，添加到 handlerMappings 中
 		if (this.detectAllHandlerMappings) {
 			// Find all HandlerMappings in the ApplicationContext, including ancestor contexts.
+			// 扫描已注册的 HandlerMapping 的 Bean 们
 			Map<String, HandlerMapping> matchingBeans =
 					BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerMapping.class, true, false);
 			if (!matchingBeans.isEmpty()) {
@@ -661,6 +667,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				AnnotationAwareOrderComparator.sort(this.handlerMappings);
 			}
 		} else {
+			// <2> 如果关闭探测功能，则获得 HANDLER_MAPPING_BEAN_NAME 对应的 Bean 对象，并设置为 handlerMappings
 			try {
 				HandlerMapping hm = context.getBean(HANDLER_MAPPING_BEAN_NAME, HandlerMapping.class);
 				this.handlerMappings = Collections.singletonList(hm);
@@ -671,6 +678,7 @@ public class DispatcherServlet extends FrameworkServlet {
 
 		// Ensure we have at least one HandlerMapping, by registering
 		// a default HandlerMapping if no other mappings are found.
+		// <3> 如果未获得到，则获得默认配置的 HandlerMapping 类
 		if (this.handlerMappings == null) {
 			this.handlerMappings = getDefaultStrategies(context, HandlerMapping.class);
 			if (logger.isTraceEnabled()) {
@@ -902,6 +910,9 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * <p>The default implementation uses the "DispatcherServlet.properties" file (in the same
 	 * package as the DispatcherServlet class) to determine the class names. It instantiates
 	 * the strategy objects through the context's BeanFactory.
+	 * <p>
+	 * 为给定的策略接口创建一个默认策略对象列表。默认实现使用 "DispatcherServlet.properties"文件
+	 * (与 DispatcherServlet 类在同一个包中)来确定类名。它通过上下文的 BeanFactory 实例化策略对象。
 	 *
 	 * @param context           the current WebApplicationContext
 	 * @param strategyInterface the strategy interface
@@ -909,14 +920,21 @@ public class DispatcherServlet extends FrameworkServlet {
 	 */
 	@SuppressWarnings("unchecked")
 	protected <T> List<T> getDefaultStrategies(ApplicationContext context, Class<T> strategyInterface) {
+		// <1> 获得 strategyInterface 对应的 value 值
 		String key = strategyInterface.getName();
 		String value = defaultStrategies.getProperty(key);
+		// <2> 创建 value 对应的对象们，并返回
 		if (value != null) {
+			// 基于 "," 分隔，创建 classNames 数组
 			String[] classNames = StringUtils.commaDelimitedListToStringArray(value);
+			// 创建 strategyInterface 集合
 			List<T> strategies = new ArrayList<>(classNames.length);
+			// 遍历 classNames 数组，创建对应的类，添加到 strategyInterface 中
 			for (String className : classNames) {
 				try {
+					// 获得 className 类
 					Class<?> clazz = ClassUtils.forName(className, DispatcherServlet.class.getClassLoader());
+					// 创建 className 对应的类，并添加到 strategies 中
 					Object strategy = createDefaultStrategy(context, clazz);
 					strategies.add((T) strategy);
 				} catch (ClassNotFoundException ex) {
