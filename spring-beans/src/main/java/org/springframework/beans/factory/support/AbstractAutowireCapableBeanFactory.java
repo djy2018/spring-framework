@@ -930,12 +930,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 * Obtain a reference for early access to the specified bean,
 	 * typically for the purpose of resolving a circular reference.
 	 *
-	 * 获取指定bean的早期访问引用，通常用于解析循环引用。
+	 * 获取指定bean的早期访问引用，通常用于解决循环引用。
 	 *
 	 * @param beanName the name of the bean (for error handling purposes)
 	 * @param mbd      the merged bean definition for the bean
 	 * @param bean     the raw bean instance
-	 * @return the object to expose as bean reference
+	 * @return the object to expose as bean reference 要公开为bean引用的对象
 	 */
 	protected Object getEarlyBeanReference(String beanName, RootBeanDefinition mbd, Object bean) {
 		Object exposedObject = bean;

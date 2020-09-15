@@ -174,7 +174,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	/**
 	 * Parse the elements at the root level in the document:
 	 * "import", "alias", "bean".
-	 *
+	 * <p>
 	 * 注：
 	 * 默认命名空间 : import/alias/bean/beans
 	 * Spring有两种Bean声明方式：
@@ -314,6 +314,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	/**
 	 * Process the given bean element, parsing the bean definition
 	 * and registering it with the registry.
+	 * 处理给定的bean元素，解析对应的bean定义，同时使用Bean定义注册器注册该bean定义
 	 */
 	protected void processBeanDefinition(Element ele, BeanDefinitionParserDelegate delegate) {
 		BeanDefinitionHolder bdHolder = delegate.parseBeanDefinitionElement(ele);

@@ -60,25 +60,24 @@ import org.springframework.web.method.HandlerMethod;
 public interface AsyncHandlerInterceptor extends HandlerInterceptor {
 
 	/**
-     * Called instead of {@code postHandle} and {@code afterCompletion}
-     * when the handler is being executed concurrently.
-     * 当处理器正在被并发调用的时候，调用该方法替代 {@code postHandle} and {@code afterCompletion}
-     *
-     * <p>Implementations may use the provided request and response but should
-     * avoid modifying them in ways that would conflict with the concurrent
-     * execution of the handler. A typical use of this method would be to
-     * clean up thread-local variables.
-     * 该方法一个典型的应用是清空 线程本地变量
-     * @param request  the current request
-     * @param response the current response
-     * @param handler  the handler (or {@link HandlerMethod}) that started async
-     *                 execution, for type and/or instance examination
-     * @throws Exception in case of errors
-     */or type and/or instance examination
+	 * Called instead of {@code postHandle} and {@code afterCompletion}
+	 * when the handler is being executed concurrently.
+	 * 当处理器正在被并发调用的时候，调用该方法替代 {@code postHandle} and {@code afterCompletion}
+	 *
+	 * <p>Implementations may use the provided request and response but should
+	 * avoid modifying them in ways that would conflict with the concurrent
+	 * execution of the handler. A typical use of this method would be to
+	 * clean up thread-local variables.
+	 * 该方法一个典型的应用是清空 线程本地变量
+	 *
+	 * @param request  the current request
+	 * @param response the current response
+	 * @param handler  the handler (or {@link HandlerMethod}) that started async
+	 *                 execution, for type and/or instance examination
 	 * @throws Exception in case of errors
 	 */
 	default void afterConcurrentHandlingStarted(HttpServletRequest request, HttpServletResponse response,
-			Object handler) throws Exception {
+												Object handler) throws Exception {
 	}
 
 }

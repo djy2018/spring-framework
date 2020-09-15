@@ -33,6 +33,9 @@ import org.springframework.util.ObjectUtils;
  */
 public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHandlerMapping {
 
+	/**
+	 * 是否只扫描可访问的 Handler 们
+	 */
 	private boolean detectHandlersInAncestorContexts = false;
 
 
@@ -55,7 +58,9 @@ public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHand
 	 */
 	@Override
 	public void initApplicationContext() throws ApplicationContextException {
+		// 调用父类方法，进行初始化
 		super.initApplicationContext();
+		// 自动探测处理器
 		detectHandlers();
 	}
 
@@ -64,18 +69,23 @@ public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHand
 	 * <p>The actual URL determination for a handler is up to the concrete
 	 * {@link #determineUrlsForHandler(String)} implementation. A bean for
 	 * which no such URLs could be determined is simply not considered a handler.
+	 *
 	 * @throws org.springframework.beans.BeansException if the handler couldn't be registered
 	 * @see #determineUrlsForHandler(String)
 	 */
 	protected void detectHandlers() throws BeansException {
+		// <1> 获得 Bean 的名字的数组
 		ApplicationContext applicationContext = obtainApplicationContext();
 		String[] beanNames = (this.detectHandlersInAncestorContexts ?
 				BeanFactoryUtils.beanNamesForTypeIncludingAncestors(applicationContext, Object.class) :
 				applicationContext.getBeanNamesForType(Object.class));
 
 		// Take any bean name that we can determine URLs for.
+		// <2> 遍历 Bean ，逐个注册
 		for (String beanName : beanNames) {
+			// <2.1> 获得 Bean 对应的 URL 们
 			String[] urls = determineUrlsForHandler(beanName);
+			// <2.2> 如果 URL 们非空，则执行注册处理器
 			if (!ObjectUtils.isEmpty(urls)) {
 				// URL paths found: Let's consider it a handler.
 				registerHandler(urls, beanName);
@@ -90,6 +100,9 @@ public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHand
 
 	/**
 	 * Determine the URLs for the given handler bean.
+	 *
+	 * 获取指定 beanName 的 URL 们
+	 *
 	 * @param beanName the name of the candidate bean
 	 * @return the URLs determined for the bean, or an empty array if none
 	 */

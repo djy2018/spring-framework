@@ -323,13 +323,16 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 	 * @see #PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE
 	 */
 	protected void exposeUriTemplateVariables(Map<String, String> uriTemplateVariables, HttpServletRequest request) {
+		// 暴露 URI_TEMPLATE_VARIABLES_ATTRIBUTE 属性
 		request.setAttribute(URI_TEMPLATE_VARIABLES_ATTRIBUTE, uriTemplateVariables);
 	}
 
 	@Override
 	@Nullable
 	public RequestMatchResult match(HttpServletRequest request, String pattern) {
+		// 获得请求路径
 		String lookupPath = getUrlPathHelper().getLookupPathForRequest(request);
+		// 模式匹配，若匹配，则返回 RequestMatchResult 对象
 		if (getPathMatcher().match(pattern, lookupPath)) {
 			return new RequestMatchResult(pattern, lookupPath, getPathMatcher());
 		}
@@ -338,12 +341,14 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 				return new RequestMatchResult(pattern + "/", lookupPath, getPathMatcher());
 			}
 		}
+		// 不匹配，返回null
 		return null;
 	}
 
 	/**
 	 * Register the specified handler for the given URL paths.
 	 * 注册指定 URL 数组的处理器
+	 *
 	 * @param urlPaths the URLs that the bean should be mapped to
 	 * @param beanName the name of the handler bean
 	 * @throws BeansException if the handler couldn't be registered
@@ -361,6 +366,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 	/**
 	 * Register the specified handler for the given URL path.
 	 * 注册单个 URL 的处理器
+	 *
 	 * @param urlPath the URL the bean should be mapped to
 	 * @param handler the handler instance or handler bean name String
 	 * (a bean name will automatically be resolved into the corresponding handler bean)
@@ -464,7 +470,9 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 
 		@Override
 		public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+			// 暴露 BEST_MATCHING_PATTERN_ATTRIBUTE、PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE 属性
 			exposePathWithinMapping(this.bestMatchingPattern, this.pathWithinMapping, request);
+			// 暴露 INTROSPECT_TYPE_LEVEL_MAPPING 属性
 			request.setAttribute(INTROSPECT_TYPE_LEVEL_MAPPING, supportsTypeLevelMappings());
 			return true;
 		}

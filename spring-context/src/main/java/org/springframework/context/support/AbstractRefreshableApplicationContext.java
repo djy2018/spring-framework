@@ -244,6 +244,9 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	/**
 	 * Load bean definitions into the given bean factory, typically through
 	 * delegating to one or more bean definition readers.
+	 * <p>
+	 * 加载 BeanDefinition 至指定的 BeanFactory 中(类似于:工厂生产产品，需要先获得产品的模型，再生产产品一样)，
+	 * 通常情况下 {@link #loadBeanDefinitions(DefaultListableBeanFactory)} 都是委托给一个或多个 bean 定义读取器
 	 *
 	 * @param beanFactory the bean factory to load bean definitions into
 	 * @throws BeansException if parsing of the bean definitions failed
